@@ -1,0 +1,10 @@
+*************************************
+RESTAURANT AT THE END OF THE UNIVERSE
+*************************************
+Client: Herbert Parasio
+Hamburger - $10
+Double Cheese - $15
+-------------------------
+Tip: $15
+-------------------------
+Total: $40
