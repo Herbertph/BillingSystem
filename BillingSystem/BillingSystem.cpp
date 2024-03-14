@@ -1,243 +1,186 @@
-#include <vector>
 #include <iostream>
+#include <vector>
 #include <string>
 #include <fstream>
+#include <limits>
+#include <cstdlib> 
 
-struct Itens {
-	std::string name;
-	double price;
+class MenuItem {
+public:
+    std::string name;
+    double price;
+
+    MenuItem(std::string name, double price) : name(std::move(name)), price(price) {}
 };
 
-struct Receipt {
-	std::string clientName;
-	std::vector<Itens> itens;
-	double tip;
-	double total;
+class Receipt {
+    std::string clientName;
+    std::vector<MenuItem> items;
+    double tip;
+    double total;
+
+public:
+    Receipt(std::string clientName) : clientName(std::move(clientName)), tip(0), total(0) {}
+
+    void addItem(const MenuItem& item) {
+        items.push_back(item);
+    }
+
+    void setTip(double tipAmount) {
+        tip = tipAmount;
+    }
+
+    void calculateTotal() {
+        total = tip;
+        for (const auto& item : items) {
+            total += item.price;
+        }
+    }
+
+    void print() const {
+        std::cout << "*************************************\n";
+        std::cout << "RESTAURANT AT THE END OF THE UNIVERSE\n";
+        std::cout << "*************************************\n";
+        std::cout << "Client: " << clientName << "\n";
+
+        for (const auto& item : items) {
+            std::cout << item.name << " - $" << item.price << "\n";
+        }
+        std::cout << "-------------------------\n";
+        std::cout << "Tip: $" << tip << "\n";
+        std::cout << "-------------------------\n";
+        std::cout << "Total: $" << total << "\n";
+    }
+
+    void saveToFile(const std::string& filename) const {
+        std::ofstream file(filename);
+        if (!file.is_open()) {
+            std::cerr << "Error opening file for writing.\n";
+            return;
+        }
+
+        file << "*************************************\n";
+        file << "RESTAURANT AT THE END OF THE UNIVERSE\n";
+        file << "*************************************\n";
+        file << "Client: " << clientName << "\n";
+
+        for (const auto& item : items) {
+            file << item.name << " - $" << item.price << "\n";
+        }
+        file << "-------------------------\n";
+        file << "Tip: $" << tip << "\n";
+        file << "-------------------------\n";
+        file << "Total: $" << total << "\n";
+
+        file.close();
+    }
+
+    static void printReceiptDirectly(const std::string& filename) {
+        std::string command = "notepad.exe /p " + filename;
+        std::system(command.c_str());
+    }
 };
 
-/// <summary>
-/// Lets the user select an item from the menu and returns the selected item.
-/// </summary>
-/// <returns>
-/// An Itens structure containing the name and price of the selected item.
-/// </returns>
-Itens selectItem() {
-	while (true) { // Loop until a valid input is received
-		std::cout << "Select an item:\n";
-		std::cout << "1 - Hamburger ($10)\n";
-		std::cout << "2 - Hamburguer with cheese ($11)\n";
-		std::cout << "3 - Double Cheese ($15)\n";
-		std::cout << "4 - French Fries ($5)\n";
-		std::cout << "5 - Soda ($3)\n";
-		std::cout << "6 - Beer ($7)\n";
-		std::cout << "7 - Water ($2)\n";
-		std::cout << "8 - Ice Cream ($4)\n";
-		std::cout << "9 - Exit\n";
+class InputUtils {
+public:
+    static std::string getString(const std::string& prompt) {
+        std::cout << prompt;
+        std::string input;
+        std::getline(std::cin, input);
+        return input;
+    }
 
-		int option;
-		std::cin >> option;
+    static double getDouble(const std::string& prompt) {
+        std::cout << prompt;
+        double value;
+        while (!(std::cin >> value)) {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cout << "Invalid input. " << prompt;
+        }
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        return value;
+    }
 
-		// Clear the error flag on cin
-		std::cin.clear();
+    static char getChar(const std::string& prompt) {
+        std::cout << prompt;
+        char input;
+        std::cin >> input;
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        return input;
+    }
+};
 
-		// Discard invalid input
-		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+class OrderManager {
+    std::vector<MenuItem> menuItems{
+        {"Hamburger", 10},
+        {"Hamburger with cheese", 11},
+        {"Double Cheese", 15},
+        {"French Fries", 5},
+        {"Soda", 3},
+        {"Beer", 7},
+        {"Water", 2},
+        {"Ice Cream", 4}
+    };
 
-		switch (option) {
-		case 1:
-			return { "Hamburger", 10 };
-		case 2:
-			return { "Hamburger with cheese", 11 };
-		case 3:
-			return { "Double Cheese", 15 };
-		case 4:
-			return { "French Fries", 5 };
-		case 5:
-			return { "Soda", 3 };
-		case 6:
-			return { "Beer", 7 };
-		case 7:
-			return { "Water", 2 };
-		case 8:
-			return { "Ice Cream", 4 };
-		case 9:
-			return { "Exit", 0 };
-		default:
-			std::cout << "Invalid selection. Please enter a number between 1 and 9.\n";
-			continue;
-		}
-	}
-}
+public:
+    MenuItem selectItem() {
+        while (true) {
+            std::cout << "Select an item:\n";
+            for (size_t i = 0; i < menuItems.size(); ++i) {
+                std::cout << i + 1 << " - " << menuItems[i].name << " ($" << menuItems[i].price << ")\n";
+            }
+            std::cout << menuItems.size() + 1 << " - Exit\n";
 
-
-/// <summary>
-/// Prompts the user to enter the tip amount.
-/// </summary>
-/// <returns>
-/// The tip amount entered by the user.
-/// </returns>
-double getTip() {
-	std::cout << "Enter the tip: ";
-	double tip;
-	std::cin >> tip;
-	return tip;
-}
-
-/// <summary>
-/// Prints the complete receipt to the console.
-/// </summary>
-/// <param name="receipt">
-/// The receipt structure containing all the information to be printed.
-/// </param>
-void printReceipt(Receipt receipt) {
-	std::cout << "*************************************\n";
-	std::cout << "RESTAURANT AT THE END OF THE UNIVERSE\n";
-	std::cout << "*************************************\n";
-	std::cout << "Client: " << receipt.clientName << "\n";
-
-	for (auto item : receipt.itens) {
-		std::cout << item.name << " - $" << item.price << "\n";
-	}
-	std::cout << "-------------------------\n";
-	std::cout << "Tip: $" << receipt.tip << "\n";
-	std::cout << "-------------------------\n";
-	std::cout << "Total: $" << receipt.total << "\n";
-}
-
-/// <summary>
-/// Prompts the user to enter the client name.
-/// </summary>
-/// <returns>
-/// The name of the client as entered by the user.
-/// </returns>
-std::string getClientName() {
-	std::cout << "*************************************\n";
-	std::cout << "RESTAURANT AT THE END OF THE UNIVERSE\n";
-	std::cout << "*************************************\n";
-	std::string clientName;
-	std::cout << "Enter the client name: ";
-	std::getline(std::cin, clientName);
-	return clientName;
-}
-
-/// <summary>
-/// Prompts the user to decide if they want to add another item.
-/// This function continuously prompts the user until a valid input (y, Y, n, N) is provided.
-/// </summary>
-/// <returns>
-/// Returns 'y' or 'Y' if the user wants to add another item, and 'n' or 'N' otherwise.
-/// </returns>
-char askToAddAnotherItem() {
-	char response;
-	while (true) {
-		std::cout << "Add another item? (y/n) ";
-		std::cin >> response;
-
-		// Clear the error flag on cin
-		std::cin.clear();
-
-		// Discard invalid input
-		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-		if (response == 'y' || response == 'Y' || response == 'n' || response == 'N') {
-			return response;
-		}
-		else {
-			std::cout << "Invalid input. Please enter 'y', 'Y', 'n', or 'N'.\n";
-		}
-	}
-}
-
-/// <summary>
-/// Clears the console screen. Works for both Windows and other operating systems.
-/// </summary>
-void clearScreen() {
-#ifdef _WIN32
-	std::system("cls");
-#else
-	std::system("clear");
-#endif
-}
-
-/// <summary>
-/// Saves the complete receipt to a file.
-/// </summary>
-/// <param name="receipt">
-/// The receipt structure containing all the information to be saved.
-/// </param>
-/// <param name="filename">
-/// The name of the file where the receipt will be saved.
-/// </param>
-void saveReceiptToFile(const Receipt& receipt, const std::string& filename) {
-	std::ofstream file(filename);
-	file << "*************************************\n";
-	file << "RESTAURANT AT THE END OF THE UNIVERSE\n";
-	file << "*************************************\n";
-	file << "Client: " << receipt.clientName << "\n";
-
-	for (auto item : receipt.itens) {
-		file << item.name << " - $" << item.price << "\n";
-	}
-	file << "-------------------------\n";
-	file << "Tip: $" << receipt.tip << "\n";
-	file << "-------------------------\n";
-	file << "Total: $" << receipt.total << "\n";
-	file.close();
-}
+            int option = static_cast<int>(InputUtils::getDouble("Option: ")) - 1;
+            if (option >= 0 && option < static_cast<int>(menuItems.size())) {
+                return menuItems[option];
+            }
+            else if (option == static_cast<int>(menuItems.size())) {
+                return { "Exit", 0 };
+            }
+            else {
+                std::cout << "Invalid selection. Please enter a number between 1 and " << menuItems.size() + 1 << ".\n";
+            }
+        }
+    }
+};
 
 int main() {
-	while (true) {
-		Receipt receipt;
-		receipt.clientName = getClientName();
-		clearScreen();
+    while (true) {
+        std::string clientName = InputUtils::getString("Enter the client name: ");
+        Receipt receipt(clientName);
 
-		// Inicialmente, adicione um item sem perguntar.
-		Itens item = selectItem();
-		while (item.name != "Exit") {
-			receipt.itens.push_back(item);
+        OrderManager orderManager;
+        MenuItem item = orderManager.selectItem();
+        while (item.name != "Exit") {
+            receipt.addItem(item);
 
-			char goAhead = askToAddAnotherItem();
-			if (goAhead == 'n' || goAhead == 'N') {
-				break;
-			}
+            char addMore = InputUtils::getChar("Add another item? (y/n) ");
+            if (addMore == 'n' || addMore == 'N') {
+                break;
+            }
+            item = orderManager.selectItem();
+        }
 
-			clearScreen();
-			item = selectItem();
-		}
+        double tip = InputUtils::getDouble("Enter the tip: ");
+        receipt.setTip(tip);
+        receipt.calculateTotal();
+        receipt.print();
 
-		receipt.tip = getTip();
+        char saveOption = InputUtils::getChar("\nDo you want to save the receipt to a file? (y/n): ");
+        if (saveOption == 'y' || saveOption == 'Y') {
+            receipt.saveToFile("receipt.txt");
+            char printOption = InputUtils::getChar("Do you want to print the receipt? (y/n): ");
+            if (printOption == 'y' || printOption == 'Y') {
+                Receipt::printReceiptDirectly("receipt.txt");
+            }
+        }
 
-		receipt.total = receipt.tip;
-		for (auto item : receipt.itens) {
-			receipt.total += item.price;
-		}
-
-		clearScreen();
-		printReceipt(receipt);
-
-		char printOption;
-		std::cout << "\nDo you want to print the receipt? (y/n): ";
-		std::cin >> printOption;
-
-		if (printOption == 'y' || printOption == 'Y') {
-			const std::string filename = "temp_receipt.txt";
-			saveReceiptToFile(receipt, filename);
-			std::system(("notepad.exe /p " + filename).c_str());
-		}
-
-		char newOrderOption;
-		std::cout << "\nDo you want to start a new order? (y/n): ";
-		std::cin >> newOrderOption;
-
-		// Limpar o buffer de entrada aqui.
-		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-		if (newOrderOption == 'n' || newOrderOption == 'N') {
-			break;
-		}
-
-		clearScreen();
-	}
-
-	return 0;
+        char newOrder = InputUtils::getChar("\nDo you want to start a new order? (y/n): ");
+        if (newOrder == 'n' || newOrder == 'N') {
+            break;
+        }
+    }
+    return 0;
 }

@@ -1,9 +1,10 @@
 *************************************
 RESTAURANT AT THE END OF THE UNIVERSE
 *************************************
-Client: a
+Client: Herbert
 Hamburger - $10
+French Fries - $5
 -------------------------
 Tip: $15
 -------------------------
-Total: $25
+Total: $30

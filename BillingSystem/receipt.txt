@@ -1,10 +1,10 @@
 *************************************
 RESTAURANT AT THE END OF THE UNIVERSE
 *************************************
-Client: Herbert Parasio
+Client: Jessika
 Hamburger - $10
-Double Cheese - $15
+Hamburger with cheese - $11
 -------------------------
-Tip: $15
+Tip: $2
 -------------------------
-Total: $40
+Total: $23
