@@ -1,7 +1,7 @@
 *************************************
 RESTAURANT AT THE END OF THE UNIVERSE
 *************************************
-Client: Jessika
+Client: Herbert Cunha
 Hamburger - $10
 Hamburger with cheese - $11
 -------------------------
