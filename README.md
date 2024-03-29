@@ -37,9 +37,20 @@ Stores the entire order and calculates the total.
 ## Workflow
 
 1. **Client Name**: The application begins by asking for the client's name.
+
 ![Client Name](https://i.ibb.co/YLNrWVf/Name.png)
+
 2. **Select Items**: Users select items from the menu until they choose to exit this step.
+
+![Client Name](https://i.ibb.co/bP0dTKV/Menu.png)
+
 3. **Add Tip**: Users are prompted to add a tip to the order.
+
+![Client Name](https://i.ibb.co/xL83Z1n/Finishing-Order.png)
+
 4. **View Receipt**: The receipt, containing all selected items, the tip, and the total cost, is displayed on the screen.
 5. **Print Receipt**: Users are asked if they want to print the receipt. If yes, the receipt is saved to a temporary file and printed using the system's default text editor print command.
+
+![Client Name](https://i.ibb.co/s5pHn8n/Printing.png)
+
 6. **New Order**: Finally, users are asked if they want to start a new order. If yes, the process repeats; if no, the application ends.
